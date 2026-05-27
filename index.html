@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#6750A4" id="themeColorMeta">
+<title>Car Music Player</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<style>
+/* ─── Material Expressive 3 Tokens ─── */
+:root {
+  --md-pri: #6750A4;
+  --md-on-pri: #fff;
+  --md-pri-c: #EADDFF;
+  --md-on-pri-c: #21005D;
+  --md-sec: #625B71;
+  --md-sec-c: #E8DEF8;
+  --md-surf: #FEF7FF;
+  --md-on-surf: #1D1B20;
+  --md-surf-v: #E7E0EC;
+  --md-on-surf-v: #49454F;
+  --md-surf-c: #F3EDF7;
+  --md-surf-ch: #ECE6F0;
+  --md-out-v: #CAC4D0;
+  --bg1: #6750A4; --bg2: #B69DF8; --bg3: #EADDFF;
+  --elevation-1: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.14);
+  --elevation-2: 0 3px 6px rgba(0,0,0,.15), 0 2px 4px rgba(0,0,0,.12);
+  --elevation-3: 0 10px 20px rgba(0,0,0,.15), 0 3px 6px rgba(0,0,0,.10);
+}
+
+/* ─── Themes ─── */
+.t-purple  { --md-pri:#6750A4; --md-pri-c:#EADDFF; --md-on-pri-c:#21005D; --md-sec:#625B71; --md-sec-c:#E8DEF8; --md-surf:#FEF7FF; --md-on-surf:#1D1B20; --md-surf-v:#E7E0EC; --md-on-surf-v:#49454F; --md-surf-c:#F3EDF7; --md-surf-ch:#ECE6F0; --md-out-v:#CAC4D0; --bg1:#6750A4; --bg2:#B69DF8; --bg3:#EADDFF; }
+.t-blue    { --md-pri:#0061A4; --md-pri-c:#D1E4FF; --md-on-pri-c:#001D36; --md-sec:#535F70; --md-sec-c:#D7E3F7; --md-surf:#FDFCFF; --md-on-surf:#1A1C1E; --md-surf-v:#DFE2EB; --md-on-surf-v:#43474E; --md-surf-c:#F0F0F7; --md-surf-ch:#EAEAF1; --md-out-v:#C3C7CF; --bg1:#0061A4; --bg2:#4FC3F7; --bg3:#D1E4FF; }
+.t-green   { --md-pri:#006E1C; --md-pri-c:#97F990; --md-on-pri-c:#002204; --md-sec:#52634F; --md-sec-c:#D5E8CE; --md-surf:#FDFDF6; --md-on-surf:#1A1C19; --md-surf-v:#DEE4D9; --md-on-surf-v:#42493F; --md-surf-c:#EEEFEA; --md-surf-ch:#E8E9E4; --md-out-v:#C2C9BD; --bg1:#006E1C; --bg2:#66BB6A; --bg3:#97F990; }
+.t-orange  { --md-pri:#8B5000; --md-pri-c:#FFDDB3; --md-on-pri-c:#2C1600; --md-sec:#735B3F; --md-sec-c:#FFDDB3; --md-surf:#FFF8F4; --md-on-surf:#201B16; --md-surf-v:#F3DFC9; --md-on-surf-v:#52443A; --md-surf-c:#F7EDE3; --md-surf-ch:#F1E7DD; --md-out-v:#D5C3B2; --bg1:#8B5000; --bg2:#FFA726; --bg3:#FFDDB3; }
+.t-pink    { --md-pri:#9A2558; --md-pri-c:#FFD9E2; --md-on-pri-c:#3E0019; --md-sec:#74565F; --md-sec-c:#FFD9E2; --md-surf:#FFFBFF; --md-on-surf:#201A1B; --md-surf-v:#F2DDE2; --md-on-surf-v:#524345; --md-surf-c:#F7EFF0; --md-surf-ch:#F1E9EA; --md-out-v:#D4C2C5; --bg1:#9A2558; --bg2:#F48FB1; --bg3:#FFD9E2; }
+.t-dark    { --md-pri:#D0BCFF; --md-pri-c:#4F378B; --md-on-pri-c:#EADDFF; --md-sec:#CCC2DC; --md-sec-c:#4A4458; --md-surf:#141218; --md-on-surf:#E6E1E5; --md-surf-v:#49454F; --md-on-surf-v:#CAC4D0; --md-surf-c:#211F26; --md-surf-ch:#2B2930; --md-out-v:#49454F; --bg1:#1A0033; --bg2:#4F378B; --bg3:#2B2930; }
+
+/* ─── Reset & Base ─── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
+
+html, body {
+  width:100%; height:100%;
+  overflow:hidden;
+  font-family:'Vazirmatn',sans-serif;
+  background:#000;
+}
+
+/* ─── Screen: always 16:9 landscape ─── */
+#screen {
+  position:fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  background:#000;
+}
+
+#app {
+  position:relative;
+  overflow:hidden;
+  background:var(--md-surf);
+  color:var(--md-on-surf);
+  transition:background .5s, color .5s;
+  width: min(100vw, 177.78vh);
+  height: min(100vh, 56.25vw);
+}
+
+/* ─── Dynamic BG ─── */
+.bg {
+  position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 80% at 15% 20%, var(--bg1) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 60% at 85% 75%, var(--bg2) 0%, transparent 50%),
+    radial-gradient(ellipse 45% 50% at 55% 5%,  var(--bg3) 0%, transparent 50%),
+    var(--md-surf);
+  opacity:.28;
+  transition:background .6s;
+}
+.bg-noise {
+  position:absolute; inset:0; z-index:1; pointer-events:none; opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ─── Layout ─── */
+.layout {
+  position:relative; z-index:2;
+  display:grid;
+  grid-template-columns: 42% 58%;
+  grid-template-rows: auto 1fr auto;
+  width:100%; height:100%;
+  padding:2% 2.5%;
+  gap:0;
+}
+
+/* ─── Top Bar ─── */
+.topbar {
+  grid-column:1/-1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-bottom:1.5%;
+  direction:ltr;
+}
+
+.topbar-left { display:flex; gap:.5em; align-items:center; }
+.topbar-right { display:flex; gap:.4em; align-items:center; }
+
+.chip {
+  display:inline-flex; align-items:center; gap:.3em;
+  background:var(--md-surf-c);
+  border:1.5px solid var(--md-out-v);
+  border-radius:50px;
+  padding:.28em .75em;
+  font-size:clamp(8px,1.15vw,13px);
+  font-weight:500;
+  color:var(--md-on-surf-v);
+  backdrop-filter:blur(10px);
+  transition:all .3s;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.chip .mi { font-size:1.1em !important; }
+.chip.on { background:color-mix(in srgb,var(--md-pri-c) 85%,transparent); border-color:var(--md-pri); color:var(--md-on-pri-c); }
+.chip.on .mi { color:var(--md-pri); }
+
+.icon-btn {
+  display:flex; align-items:center; justify-content:center;
+  width:clamp(28px,3.8vw,44px); height:clamp(28px,3.8vw,44px);
+  border-radius:50%; border:none; background:none;
+  cursor:pointer; color:var(--md-on-surf-v);
+  transition:all .2s;
+  position:relative;
+}
+.icon-btn:hover { background:var(--md-surf-v); color:var(--md-pri); }
+.icon-btn.active { color:var(--md-pri); }
+.icon-btn .mi { font-size:clamp(14px,2vw,22px) !important; }
+
+/* ─── Left panel ─── */
+.left {
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding-right:2%;
+}
+
+.art-wrap {
+  position:relative;
+  width:min(36vh,36vw);
+  height:min(36vh,36vw);
+}
+.art-glow {
+  position:absolute; inset:10%;
+  border-radius:50%;
+  background:var(--md-pri);
+  filter:blur(clamp(16px,3vw,40px));
+  opacity:.35;
+  animation:breathe 3.5s ease-in-out infinite;
+  transition:background .6s;
+}
+@keyframes breathe {
+  0%,100% { opacity:.25; transform:scale(.88); }
+  50%      { opacity:.5;  transform:scale(1.06); }
+}
+.art {
+  position:relative; width:100%; height:100%;
+  border-radius:50%;
+  background:var(--md-surf-ch);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.25), inset 0 1px 2px rgba(255,255,255,.15);
+  border:3px solid color-mix(in srgb,var(--md-pri) 35%,transparent);
+  transition:border-color .6s;
+}
+.art.spin { animation:spin 9s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.art .vinyl {
+  position:absolute; width:80%; height:80%;
+  border-radius:50%;
+  background:repeating-radial-gradient(circle,transparent 0,transparent 5px,color-mix(in srgb,var(--md-pri) 12%,transparent) 5px,color-mix(in srgb,var(--md-pri) 12%,transparent) 6px);
+}
+.art .cdot {
+  position:absolute; width:17%; height:17%;
+  border-radius:50%;
+  background:var(--md-surf);
+  z-index:2;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.art .mi-big {
+  position:absolute; z-index:1;
+  font-size:clamp(22px,5vw,56px) !important;
+  color:var(--md-pri);
+  opacity:.65;
+  transition:color .4s;
+}
+
+/* ─── Right panel ─── */
+.right {
+  display:flex; flex-direction:column;
+  justify-content:center;
+  gap:2.5%;
+  padding-left:1.5%;
+  direction:ltr;
+}
+
+.card {
+  background:color-mix(in srgb,var(--md-surf-c) 85%,transparent);
+  border:1px solid var(--md-out-v);
+  border-radius:24px;
+  backdrop-filter:blur(18px);
+  box-shadow:var(--elevation-1);
+  padding:3.5% 4.5%;
+  transition:background .4s, border-color .4s;
+}
+
+.song-title {
+  font-size:clamp(12px,2.1vw,26px);
+  font-weight:700;
+  color:var(--md-on-surf);
+  line-height:1.2;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.song-artist {
+  font-size:clamp(9px,1.4vw,17px);
+  color:var(--md-on-surf-v);
+  font-weight:400; margin-top:.25em;
+}
+.song-album {
+  font-size:clamp(7px,1vw,12px);
+  color:var(--md-pri);
+  font-weight:500; margin-top:.15em; opacity:.9;
+}
+
+/* ─── Progress ─── */
+.prog-wrap { padding:0 .5%; }
+.prog-track {
+  width:100%; height:clamp(4px,.6vh,7px);
+  background:var(--md-surf-ch);
+  border-radius:100px; cursor:pointer; position:relative;
+}
+.prog-fill {
+  height:100%;
+  background:linear-gradient(90deg, var(--md-pri), color-mix(in srgb,var(--md-pri) 65%,var(--md-sec)));
+  border-radius:100px; width:0%;
+  transition:width .8s linear;
+  position:relative;
+}
+.prog-fill::after {
+  content:''; position:absolute; right:-1px; top:50%;
+  transform:translateY(-50%);
+  width:clamp(9px,1.3vh,15px); height:clamp(9px,1.3vh,15px);
+  background:var(--md-pri); border-radius:50%;
+  box-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+.time-row {
+  display:flex; justify-content:space-between;
+  margin-top:.35em;
+  font-size:clamp(7px,.95vw,11px);
+  color:var(--md-on-surf-v);
+}
+
+/* ─── Controls ─── */
+.ctrl-row {
+  display:flex; align-items:center; justify-content:center;
+  gap:clamp(5px,1.3vw,18px);
+  direction:ltr;
+}
+.ctrl {
+  display:flex; align-items:center; justify-content:center;
+  border:none; background:none; cursor:pointer;
+  border-radius:50%; color:var(--md-on-surf-v);
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);
+  position:relative; overflow:hidden;
+}
+.ctrl .mi { position:relative; z-index:1; font-size:clamp(16px,2.4vw,30px) !important; }
+.ctrl.sm { width:clamp(32px,4.8vw,52px); height:clamp(32px,4.8vw,52px); }
+.ctrl.sm:hover { background:var(--md-surf-v); color:var(--md-pri); transform:scale(1.1); }
+.ctrl.lg {
+  width:clamp(50px,7.2vw,78px); height:clamp(50px,7.2vw,78px);
+  background:var(--md-pri); color:var(--md-on-pri);
+  box-shadow:0 6px 20px color-mix(in srgb,var(--md-pri) 45%,transparent), var(--elevation-2);
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);
+}
+.ctrl.lg .mi { font-size:clamp(20px,3.4vw,40px) !important; }
+.ctrl.lg:hover { transform:scale(1.07); box-shadow:0 8px 28px color-mix(in srgb,var(--md-pri) 55%,transparent); }
+.ctrl.lg:active { transform:scale(.95); }
+
+/* ─── Volume ─── */
+.vol-row {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:.5em; direction:ltr;
+}
+.vol-wrap { display:flex; align-items:center; gap:.4em; flex:1; }
+.vol-wrap .mi { font-size:clamp(11px,1.6vw,19px) !important; color:var(--md-on-surf-v); }
+.vol-track {
+  flex:1; height:clamp(3px,.45vh,5px);
+  background:var(--md-surf-ch); border-radius:100px;
+  cursor:pointer; overflow:hidden;
+}
+.vol-fill { height:100%; background:var(--md-sec); border-radius:100px; width:70%; transition:width .1s; }
+.aux-row { display:flex; gap:.25em; }
+
+/* ─── Playlist ─── */
+.playlist {
+  grid-column:1/-1;
+  display:flex; gap:clamp(5px,1vw,12px);
+  align-items:center;
+  padding-top:1%;
+  overflow-x:auto; scrollbar-width:none;
+  direction:ltr;
+}
+.playlist::-webkit-scrollbar { display:none; }
+.pl-item {
+  flex-shrink:0;
+  display:flex; align-items:center; gap:.45em;
+  background:color-mix(in srgb,var(--md-surf-c) 80%,transparent);
+  border:1.5px solid transparent;
+  border-radius:14px; padding:.45em .85em;
+  cursor:pointer;
+  transition:all .22s cubic-bezier(.34,1.56,.64,1);
+  backdrop-filter:blur(10px);
+}
+.pl-item.on {
+  background:var(--md-pri-c);
+  border-color:var(--md-pri);
+  box-shadow:0 2px 10px color-mix(in srgb,var(--md-pri) 28%,transparent);
+}
+.pl-item:hover:not(.on) { background:var(--md-surf-ch); transform:translateY(-2px); }
+.pl-num { font-size:clamp(7px,.95vw,11px); font-weight:700; color:var(--md-pri); min-width:1.4em; }
+.pl-title { font-size:clamp(8px,1.05vw,13px); font-weight:600; color:var(--md-on-surf); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:11vw; }
+.pl-artist { font-size:clamp(6px,.85vw,10px); color:var(--md-on-surf-v); white-space:nowrap; }
+
+/* ══════════════════════════════════════════
+   OVERLAYS
+══════════════════════════════════════════ */
+.overlay {
+  position:absolute; inset:0; z-index:200;
+  background:color-mix(in srgb,#000 45%,transparent);
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(10px);
+  opacity:0; pointer-events:none;
+  transition:opacity .3s;
+}
+.overlay.show { opacity:1; pointer-events:all; }
+
+.sheet {
+  background:var(--md-surf-c);
+  border-radius:28px;
+  padding:5% 5.5%;
+  box-shadow:var(--elevation-3);
+  transform:scale(.88) translateY(20px);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  max-height:85%;
+  overflow-y:auto;
+}
+.overlay.show .sheet { transform:scale(1) translateY(0); }
+.sheet h2 { font-size:clamp(13px,1.9vw,22px); font-weight:700; color:var(--md-on-surf); margin-bottom:4%; text-align:center; }
+
+/* Bluetooth sheet */
+.bt-sheet { width:min(55%,380px); }
+.bt-device {
+  display:flex; align-items:center; gap:.7em;
+  background:var(--md-surf-ch);
+  border-radius:14px; padding:.6em .9em;
+  cursor:pointer;
+  border:1.5px solid transparent;
+  transition:all .2s; margin-bottom:.5em;
+}
+.bt-device:hover { border-color:var(--md-pri); background:var(--md-pri-c); }
+.bt-device.connected-dev { border-color:var(--md-pri); background:var(--md-pri-c); }
+.bt-device .mi { font-size:clamp(14px,1.9vw,22px) !important; color:var(--md-pri); }
+.bt-name { font-size:clamp(10px,1.3vw,15px); font-weight:500; }
+.bt-sub  { font-size:clamp(8px,1vw,11px); color:var(--md-on-surf-v); }
+.scan-row { display:flex; align-items:center; gap:.5em; margin-bottom:3%; }
+.scan-anim { width:8px; height:8px; border-radius:50%; background:var(--md-pri); animation:blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.2} }
+
+/* Color/Theme sheet */
+.theme-sheet { width:min(60%,420px); }
+.theme-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:3%; }
+.theme-card {
+  border-radius:16px; padding:8% 6%; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:.4em;
+  border:2px solid transparent;
+  transition:all .22s cubic-bezier(.34,1.56,.64,1);
+  position:relative; overflow:hidden;
+}
+.theme-card::before {
+  content:''; position:absolute; inset:0;
+  background:inherit; opacity:.25; filter:blur(8px);
+}
+.theme-card:hover { transform:scale(1.04); }
+.theme-card.sel { border-color:#fff; box-shadow:0 4px 16px rgba(0,0,0,.3); transform:scale(1.06); }
+.theme-card .check {
+  position:absolute; top:6%; right:6%;
+  width:clamp(14px,1.8vw,20px); height:clamp(14px,1.8vw,20px);
+  border-radius:50%; background:#fff;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity .2s;
+}
+.theme-card.sel .check { opacity:1; }
+.theme-card .check .mi { font-size:clamp(9px,1.2vw,14px) !important; color:#000; }
+.theme-label { font-size:clamp(8px,1.1vw,13px); font-weight:600; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.5); position:relative; z-index:1; }
+.theme-dots { display:flex; gap:3px; position:relative; z-index:1; }
+.tdot { width:clamp(6px,.9vw,10px); height:clamp(6px,.9vw,10px); border-radius:50%; }
+
+/* Permission sheet */
+.perm-sheet { width:min(60%,400px); }
+.perm-item {
+  display:flex; align-items:center; gap:.8em;
+  padding:.7em .5em; border-bottom:1px solid var(--md-out-v);
+}
+.perm-item:last-of-type { border:none; }
+.perm-icon { width:clamp(28px,3.5vw,42px); height:clamp(28px,3.5vw,42px); border-radius:12px; background:var(--md-pri-c); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.perm-icon .mi { font-size:clamp(14px,1.9vw,20px) !important; color:var(--md-on-pri-c); }
+.perm-text { flex:1; }
+.perm-name { font-size:clamp(10px,1.3vw,15px); font-weight:600; color:var(--md-on-surf); }
+.perm-desc { font-size:clamp(7px,1vw,12px); color:var(--md-on-surf-v); margin-top:.15em; }
+.perm-badge { font-size:clamp(7px,.9vw,11px); font-weight:600; padding:.2em .6em; border-radius:50px; }
+.perm-badge.granted { background:color-mix(in srgb,#006E1C 20%,transparent); color:#006E1C; }
+.perm-badge.denied  { background:color-mix(in srgb,#B3261E 20%,transparent); color:#B3261E; }
+.perm-badge.pending { background:var(--md-surf-v); color:var(--md-on-surf-v); }
+.perm-badge.na      { background:var(--md-surf-v); color:var(--md-on-surf-v); }
+
+/* Buttons */
+.btn-row { display:flex; gap:.6em; justify-content:flex-end; margin-top:4%; }
+.btn-fil { background:var(--md-pri); color:var(--md-on-pri); border:none; border-radius:100px; padding:.5em 1.5em; font-size:clamp(10px,1.3vw,14px); font-weight:600; cursor:pointer; font-family:'Vazirmatn',sans-serif; transition:all .2s; }
+.btn-fil:hover { opacity:.9; transform:scale(1.03); }
+.btn-out { background:none; color:var(--md-pri); border:1.5px solid var(--md-pri); border-radius:100px; padding:.5em 1.5em; font-size:clamp(10px,1.3vw,14px); font-weight:600; cursor:pointer; font-family:'Vazirmatn',sans-serif; transition:all .2s; }
+.btn-out:hover { background:var(--md-pri-c); }
+
+/* Snackbar */
+.snack {
+  position:absolute; bottom:4%; left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:var(--md-on-surf); color:var(--md-surf);
+  border-radius:100px; padding:.5em 1.4em;
+  font-size:clamp(9px,1.15vw,13px); font-weight:500;
+  opacity:0; transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  z-index:300; white-space:nowrap; pointer-events:none;
+}
+.snack.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* Install banner */
+.install-banner {
+  position:absolute; top:0; left:0; right:0;
+  background:var(--md-pri); color:var(--md-on-pri);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.5% 2.5%;
+  font-size:clamp(8px,1.1vw,13px); font-weight:500;
+  z-index:150; transform:translateY(-100%);
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.install-banner.show { transform:translateY(0); }
+.install-banner .mi { font-size:clamp(14px,1.8vw,20px) !important; }
+
+</style>
+</head>
+<body>
+<div id="screen">
+<div id="app" class="t-purple">
+
+  <div class="bg"></div>
+  <div class="bg-noise"></div>
+
+  <!-- Install banner -->
+  <div class="install-banner" id="installBanner">
+    <div style="display:flex;align-items:center;gap:.5em">
+      <span class="material-icons-round mi">install_mobile</span>
+      <span>برای نصب روی اندروید، از منوی Chrome گزینه «Add to Home Screen» را انتخاب کنید</span>
+    </div>
+    <button onclick="document.getElementById('installBanner').classList.remove('show')" style="background:none;border:none;color:inherit;cursor:pointer;display:flex;align-items:center">
+      <span class="material-icons-round mi">close</span>
+    </button>
+  </div>
+
+  <!-- Layout -->
+  <div class="layout">
+
+    <!-- ── Top Bar ── -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="chip on" id="btChip" onclick="openSheet('bt')">
+          <span class="material-icons-round mi">bluetooth_connected</span>
+          <span id="btLabel">Car Audio</span>
+        </div>
+        <div class="chip" id="permChip" onclick="openSheet('perm')">
+          <span class="material-icons-round mi">security</span>
+          <span>دسترسی‌ها</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="icon-btn" id="shuffleBtn" onclick="toggleShuffle()" title="شافل">
+          <span class="material-icons-round mi">shuffle</span>
+        </button>
+        <button class="icon-btn" id="repeatBtn" onclick="toggleRepeat()" title="تکرار">
+          <span class="material-icons-round mi">repeat</span>
+        </button>
+        <button class="icon-btn" onclick="openSheet('theme')" title="تم رنگی">
+          <span class="material-icons-round mi">palette</span>
+        </button>
+        <button class="icon-btn" onclick="openSheet('perm')" title="دسترسی‌ها">
+          <span class="material-icons-round mi">settings</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Left: Album Art ── -->
+    <div class="left">
+      <div class="art-wrap">
+        <div class="art-glow"></div>
+        <div class="art" id="artDisc">
+          <div class="vinyl"></div>
+          <span class="material-icons-round mi-big">music_note</span>
+          <div class="cdot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Right: Info + Controls ── -->
+    <div class="right">
+      <!-- Song info -->
+      <div class="card" id="songCard">
+        <div class="song-title" id="sTitle">Bohemian Rhapsody</div>
+        <div class="song-artist" id="sArtist">Queen</div>
+        <div class="song-album" id="sAlbum">A Night at the Opera</div>
+      </div>
+
+      <!-- Progress -->
+      <div class="prog-wrap">
+        <div class="prog-track" id="progTrack" onclick="seek(event)">
+          <div class="prog-fill" id="progFill"></div>
+        </div>
+        <div class="time-row">
+          <span id="tCur">0:00</span>
+          <span id="tTot">5:55</span>
+        </div>
+      </div>
+
+      <!-- Main controls -->
+      <div class="ctrl-row">
+        <button class="ctrl sm" onclick="prevSong()" title="قبلی">
+          <span class="material-icons-round mi">skip_previous</span>
+        </button>
+        <button class="ctrl sm" onclick="seekBack()">
+          <span class="material-icons-round mi">replay_10</span>
+        </button>
+        <button class="ctrl lg" id="ppBtn" onclick="togglePlay()">
+          <span class="material-icons-round mi" id="ppIcon">pause</span>
+        </button>
+        <button class="ctrl sm" onclick="seekFwd()">
+          <span class="material-icons-round mi">forward_10</span>
+        </button>
+        <button class="ctrl sm" onclick="nextSong()" title="بعدی">
+          <span class="material-icons-round mi">skip_next</span>
+        </button>
+      </div>
+
+      <!-- Volume + aux -->
+      <div class="vol-row">
+        <div class="vol-wrap">
+          <span class="material-icons-round mi">volume_down</span>
+          <div class="vol-track" id="volTrack" onclick="setVol(event)">
+            <div class="vol-fill" id="volFill"></div>
+          </div>
+          <span class="material-icons-round mi">volume_up</span>
+        </div>
+        <div class="aux-row">
+          <button class="icon-btn" onclick="openSheet('bt')">
+            <span class="material-icons-round mi">bluetooth</span>
+          </button>
+          <button class="icon-btn" onclick="toggleMic()" id="micBtn" title="میکروفون">
+            <span class="material-icons-round mi">mic</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Playlist ── -->
+    <div class="playlist" id="playlist"></div>
+  </div>
+
+  <!-- ════ OVERLAY: Bluetooth ════ -->
+  <div class="overlay" id="ov-bt" onclick="closeIfBg(event,'ov-bt')">
+    <div class="sheet bt-sheet">
+      <h2>🔵 اتصال بلوتوث</h2>
+      <div class="scan-row">
+        <div class="scan-anim"></div>
+        <span style="font-size:clamp(8px,1.1vw,13px);color:var(--md-on-surf-v)">جستجوی دستگاه‌ها…</span>
+      </div>
+      <div id="btList"></div>
+      <div class="btn-row">
+        <button class="btn-out" onclick="closeSheet('bt')">بستن</button>
+        <button class="btn-fil" onclick="requestBT()">اتصال جدید</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ OVERLAY: Theme/Color ════ -->
+  <div class="overlay" id="ov-theme" onclick="closeIfBg(event,'ov-theme')">
+    <div class="sheet theme-sheet">
+      <h2>🎨 انتخاب رنگ</h2>
+      <div class="theme-grid" id="themeGrid"></div>
+      <div class="btn-row">
+        <button class="btn-fil" onclick="closeSheet('theme')">تأیید</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ OVERLAY: Permissions ════ -->
+  <div class="overlay" id="ov-perm" onclick="closeIfBg(event,'ov-perm')">
+    <div class="sheet perm-sheet">
+      <h2>🔒 دسترسی‌های اپ</h2>
+      <div id="permList"></div>
+      <div class="btn-row">
+        <button class="btn-out" onclick="closeSheet('perm')">بستن</button>
+        <button class="btn-fil" onclick="requestAllPerms()">درخواست همه</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Snackbar -->
+  <div class="snack" id="snack"></div>
+
+</div><!-- app -->
+</div><!-- screen -->
+
+<script>
+/* ─── Data ─── */
+const SONGS = [
+  {t:"Bohemian Rhapsody",   a:"Queen",           al:"A Night at the Opera",         d:355},
+  {t:"Hotel California",    a:"Eagles",           al:"Hotel California",              d:391},
+  {t:"Stairway to Heaven",  a:"Led Zeppelin",     al:"Led Zeppelin IV",              d:482},
+  {t:"Imagine",             a:"John Lennon",      al:"Imagine",                      d:187},
+  {t:"Smells Like Teen Spirit",a:"Nirvana",       al:"Nevermind",                    d:301},
+  {t:"Purple Rain",         a:"Prince",           al:"Purple Rain",                  d:520},
+  {t:"Sweet Child O' Mine", a:"Guns N' Roses",    al:"Appetite for Destruction",     d:356},
+  {t:"Billie Jean",         a:"Michael Jackson",  al:"Thriller",                     d:294},
+  {t:"Shape of You",        a:"Ed Sheeran",       al:"÷ (Divide)",                   d:233},
+  {t:"Blinding Lights",     a:"The Weeknd",       al:"After Hours",                  d:200},
+  {t:"Levitating",          a:"Dua Lipa",         al:"Future Nostalgia",             d:203},
+  {t:"As It Was",           a:"Harry Styles",     al:"Harry's House",                d:167},
+];
+
+const THEMES = [
+  {id:"t-purple", label:"بنفش",   c1:"#6750A4", c2:"#B69DF8", c3:"#EADDFF", meta:"#6750A4"},
+  {id:"t-blue",   label:"آبی",    c1:"#0061A4", c2:"#4FC3F7", c3:"#D1E4FF", meta:"#0061A4"},
+  {id:"t-green",  label:"سبز",    c1:"#006E1C", c2:"#66BB6A", c3:"#97F990", meta:"#006E1C"},
+  {id:"t-orange", label:"نارنجی", c1:"#8B5000", c2:"#FFA726", c3:"#FFDDB3", meta:"#8B5000"},
+  {id:"t-pink",   label:"صورتی",  c1:"#9A2558", c2:"#F48FB1", c3:"#FFD9E2", meta:"#9A2558"},
+  {id:"t-dark",   label:"تاریک",  c1:"#141218", c2:"#4F378B", c3:"#2B2930", meta:"#1A0033"},
+];
+
+const BT_DEVICES = [
+  {name:"Car Audio System",  sub:"A2DP · پیوند یافته",    icon:"directions_car",   id:"car"},
+  {name:"Wireless Headphones",sub:"A2DP · در دسترس",     icon:"headphones",        id:"hp"},
+  {name:"Phone Speaker",     sub:"پیشفرض دستگاه",        icon:"smartphone",        id:"phone"},
+  {name:"Home Speaker",      sub:"AVRCP · در دسترس",     icon:"speaker",           id:"hs"},
+];
+
+const PERMS = [
+  {key:"bluetooth",    icon:"bluetooth",       name:"بلوتوث",         desc:"اتصال به دستگاه‌های صوتی بلوتوث (A2DP/AVRCP)", web:"n/a"},
+  {key:"audio",        icon:"volume_up",       name:"پخش صدا",        desc:"کنترل خروجی صدا و Media Session API",         web:"auto"},
+  {key:"storage",      icon:"folder",          name:"فایل‌های موزیک", desc:"خواندن فایل‌های صوتی از حافظه دستگاه",         web:"storage"},
+  {key:"microphone",   icon:"mic",             name:"میکروفون",       desc:"دستیار صوتی و جستجوی آهنگ با صدا",            web:"microphone"},
+  {key:"notifications",icon:"notifications",   name:"نوتیفیکیشن",     desc:"نمایش اطلاعات آهنگ در نوار اعلان",            web:"notifications"},
+  {key:"wakelock",     icon:"screen_lock_portrait",name:"جلوگیری از خاموشی",desc:"جلوگیری از خاموش شدن صفحه هنگام پخش", web:"screen-wake-lock"},
+];
+
+/* ─── State ─── */
+const S = {
+  idx:0, playing:true, prog:0.08, vol:0.72,
+  shuffle:false, repeat:false,
+  btDev:"car", theme:"t-purple",
+  timer:null,
+  perms:{bluetooth:"n/a", audio:"granted", storage:"pending", microphone:"pending", notifications:"pending", wakelock:"pending"},
+};
+
+/* ─── Helpers ─── */
+const fmt = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+const $  = id => document.getElementById(id);
+const app = $('app');
+
+let snackT;
+function snack(msg) {
+  const el=$('snack'); el.textContent=msg; el.classList.add('show');
+  clearTimeout(snackT); snackT=setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+/* ─── UI Update ─── */
+function render() {
+  const song = SONGS[S.idx];
+  $('sTitle').textContent  = song.t;
+  $('sArtist').textContent = song.a;
+  $('sAlbum').textContent  = song.al;
+  $('ppIcon').textContent  = S.playing ? 'pause' : 'play_arrow';
+  $('progFill').style.width= (S.prog*100)+'%';
+  $('tCur').textContent    = fmt(S.prog*song.d);
+  $('tTot').textContent    = fmt(song.d);
+  $('volFill').style.width = (S.vol*100)+'%';
+  $('shuffleBtn').classList.toggle('active',S.shuffle);
+  $('repeatBtn').classList.toggle('active',S.repeat);
+  $('artDisc').classList.toggle('spin',S.playing);
+
+  // playlist
+  const pl=$('playlist'); pl.innerHTML='';
+  SONGS.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='pl-item'+(i===S.idx?' on':'');
+    d.innerHTML=`<div class="pl-num">${i+1}</div><div><div class="pl-title">${s.t}</div><div class="pl-artist">${s.a}</div></div>`;
+    d.onclick=()=>{ S.idx=i; S.prog=0; render(); if(S.playing)startTimer(); updateMediaSession(); snack('▶ '+s.t); };
+    pl.appendChild(d);
+  });
+  const act=pl.querySelector('.on');
+  if(act) act.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+
+  updateMediaSession();
+}
+
+/* ─── Timer ─── */
+function startTimer() {
+  clearInterval(S.timer);
+  S.timer = setInterval(()=>{
+    const d=SONGS[S.idx].d;
+    S.prog += 1/d;
+    if(S.prog>=1){ S.prog=0; if(!S.repeat) nextSong(); else render(); return; }
+    $('progFill').style.width=(S.prog*100)+'%';
+    $('tCur').textContent=fmt(S.prog*d);
+  },1000);
+}
+
+/* ─── Controls ─── */
+function togglePlay(){ S.playing=!S.playing; render(); S.playing?startTimer():clearInterval(S.timer); }
+function nextSong(){
+  S.idx = S.shuffle ? (()=>{ let n; do{n=Math.floor(Math.random()*SONGS.length)}while(n===S.idx&&SONGS.length>1); return n; })() : (S.idx+1)%SONGS.length;
+  S.prog=0; render(); if(S.playing)startTimer(); snack('▶ '+SONGS[S.idx].t);
+}
+function prevSong(){
+  if(S.prog*SONGS[S.idx].d>4){ S.prog=0; }
+  else { S.idx=(S.idx-1+SONGS.length)%SONGS.length; S.prog=0; }
+  render(); if(S.playing)startTimer();
+}
+function seekBack(){ S.prog=Math.max(0,S.prog-10/SONGS[S.idx].d); render(); }
+function seekFwd(){  S.prog=Math.min(1,S.prog+10/SONGS[S.idx].d); render(); }
+function seek(e){ const r=$('progTrack').getBoundingClientRect(); S.prog=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); render(); }
+function setVol(e){ const r=$('volTrack').getBoundingClientRect(); S.vol=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); $('volFill').style.width=(S.vol*100)+'%'; }
+function toggleShuffle(){ S.shuffle=!S.shuffle; snack(S.shuffle?'شافل فعال':'شافل غیرفعال'); render(); }
+function toggleRepeat(){  S.repeat=!S.repeat;  snack(S.repeat?'تکرار فعال':'تکرار غیرفعال'); render(); }
+
+/* ─── Media Session API ─── */
+function updateMediaSession(){
+  if(!('mediaSession' in navigator)) return;
+  const s=SONGS[S.idx];
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title:s.t, artist:s.a, album:s.al,
+    artwork:[{src:'icons/icon-192.png',sizes:'192x192',type:'image/png'}]
+  });
+  navigator.mediaSession.playbackState = S.playing ? 'playing' : 'paused';
+  navigator.mediaSession.setActionHandler('play',  ()=>{ S.playing=true;  render(); startTimer(); });
+  navigator.mediaSession.setActionHandler('pause', ()=>{ S.playing=false; render(); clearInterval(S.timer); });
+  navigator.mediaSession.setActionHandler('nexttrack',     nextSong);
+  navigator.mediaSession.setActionHandler('previoustrack', prevSong);
+  navigator.mediaSession.setActionHandler('seekbackward',  ()=>seekBack());
+  navigator.mediaSession.setActionHandler('seekforward',   ()=>seekFwd());
+}
+
+/* ─── Bluetooth ─── */
+async function requestBT(){
+  if('bluetooth' in navigator){
+    try {
+      const dev = await navigator.bluetooth.requestDevice({
+        acceptAllDevices:true,
+        optionalServices:['battery_service','generic_access']
+      });
+      S.btDev='custom';
+      snack('✓ متصل شد: '+dev.name);
+      $('btLabel').textContent = dev.name.substring(0,14);
+      S.perms.bluetooth='granted';
+      buildPermList();
+      closeSheet('bt');
+    } catch(e){
+      snack('بلوتوث لغو شد یا در دسترس نیست');
+    }
+  } else {
+    snack('Web Bluetooth در این مرورگر پشتیبانی نمیشه');
+  }
+}
+
+function buildBTList(){
+  const el=$('btList'); el.innerHTML='';
+  BT_DEVICES.forEach(d=>{
+    const item=document.createElement('div');
+    item.className='bt-device'+(d.id===S.btDev?' connected-dev':'');
+    item.innerHTML=`<span class="material-icons-round mi">${d.icon}</span><div><div class="bt-name">${d.name}</div><div class="bt-sub">${d.sub}</div></div>`;
+    item.onclick=()=>{
+      S.btDev=d.id; $('btLabel').textContent=d.name.substring(0,12);
+      $('btChip').className='chip on'; snack('✓ '+d.name); closeSheet('bt'); buildBTList();
+    };
+    el.appendChild(item);
+  });
+}
+
+/* ─── Theme ─── */
+function buildThemeGrid(){
+  const grid=$('themeGrid'); grid.innerHTML='';
+  THEMES.forEach(t=>{
+    const card=document.createElement('div');
+    card.className='theme-card'+(S.theme===t.id?' sel':'');
+    card.style.background=`linear-gradient(135deg,${t.c1},${t.c2})`;
+    card.innerHTML=`
+      <div class="check"><span class="material-icons-round mi">check</span></div>
+      <div class="theme-dots">
+        <div class="tdot" style="background:${t.c1}"></div>
+        <div class="tdot" style="background:${t.c2}"></div>
+        <div class="tdot" style="background:${t.c3}"></div>
+      </div>
+      <div class="theme-label">${t.label}</div>`;
+    card.onclick=()=>{
+      S.theme=t.id;
+      app.className=t.id;
+      document.getElementById('themeColorMeta').setAttribute('content',t.meta);
+      buildThemeGrid(); snack('تم '+t.label+' انتخاب شد');
+    };
+    grid.appendChild(card);
+  });
+}
+
+/* ─── Permissions ─── */
+function buildPermList(){
+  const el=$('permList'); el.innerHTML='';
+  PERMS.forEach(p=>{
+    const st=S.perms[p.key]||'pending';
+    const label = st==='granted'?'تأیید شده' : st==='denied'?'رد شده' : st==='n/a'?'سخت‌افزاری' : 'در انتظار';
+    const cls   = st==='granted'?'granted' : st==='denied'?'denied' : st==='n/a'?'na' : 'pending';
+    const item=document.createElement('div');
+    item.className='perm-item';
+    item.innerHTML=`
+      <div class="perm-icon"><span class="material-icons-round mi">${p.icon}</span></div>
+      <div class="perm-text"><div class="perm-name">${p.name}</div><div class="perm-desc">${p.desc}</div></div>
+      <span class="perm-badge ${cls}">${label}</span>`;
+    el.appendChild(item);
+  });
+}
+
+async function requestAllPerms(){
+  // Notifications
+  if('Notification' in window && Notification.permission==='default'){
+    const r = await Notification.requestPermission();
+    S.perms.notifications = r==='granted'?'granted':'denied';
+  } else if(Notification.permission==='granted') S.perms.notifications='granted';
+
+  // Microphone
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({audio:true});
+    s.getTracks().forEach(t=>t.stop());
+    S.perms.microphone='granted';
+  } catch { S.perms.microphone='denied'; }
+
+  // Storage (File System Access / legacy)
+  if('showOpenFilePicker' in window){
+    S.perms.storage='granted';
+  } else if('storage' in navigator && 'persist' in navigator.storage){
+    const p = await navigator.storage.persist();
+    S.perms.storage = p?'granted':'pending';
+  }
+
+  // Wake Lock
+  if('wakeLock' in navigator){
+    try {
+      const wl = await navigator.wakeLock.request('screen');
+      wl.release();
+      S.perms.wakelock='granted';
+    } catch { S.perms.wakelock='denied'; }
+  }
+
+  buildPermList();
+  snack('دسترسی‌ها بررسی شدند');
+}
+
+async function toggleMic(){
+  if(S.perms.microphone!=='granted'){
+    try {
+      const s=await navigator.mediaDevices.getUserMedia({audio:true});
+      s.getTracks().forEach(t=>t.stop());
+      S.perms.microphone='granted';
+      $('micBtn').classList.add('active');
+      snack('🎙 میکروفون فعال شد');
+      buildPermList();
+    } catch { snack('دسترسی میکروفون رد شد'); }
+  } else {
+    $('micBtn').classList.toggle('active');
+    snack($('micBtn').classList.contains('active')?'🎙 میکروفون فعال':'میکروفون غیرفعال');
+  }
+}
+
+/* ─── Sheet control ─── */
+function openSheet(name){
+  if(name==='bt')    { buildBTList();    }
+  if(name==='theme') { buildThemeGrid(); }
+  if(name==='perm')  { buildPermList();  }
+  $('ov-'+name).classList.add('show');
+}
+function closeSheet(name){ $('ov-'+name).classList.remove('show'); }
+function closeIfBg(e,id){ if(e.target===$(id)) closeSheet(id.replace('ov-','')); }
+
+/* ─── Keyboard ─── */
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'){e.preventDefault();togglePlay();}
+  if(e.code==='ArrowRight') nextSong();
+  if(e.code==='ArrowLeft')  prevSong();
+  if(e.code==='Escape') ['bt','theme','perm'].forEach(closeSheet);
+});
+
+/* ─── Service Worker ─── */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(()=>{
+    // Check if installable
+    window.addEventListener('beforeinstallprompt', e=>{
+      e.preventDefault();
+      $('installBanner').classList.add('show');
+      $('installBanner').querySelector('button').addEventListener('click',()=>{
+        e.prompt();
+      });
+    });
+  });
+}
+
+/* ─── Wake Lock ─── */
+(async()=>{
+  if('wakeLock' in navigator){
+    try {
+      await navigator.wakeLock.request('screen');
+      S.perms.wakelock='granted';
+    } catch{}
+  }
+})();
+
+/* ─── Init ─── */
+render();
+startTimer();
+updateMediaSession();
+
+// Check existing notification permission
+if('Notification' in window){
+  if(Notification.permission==='granted') S.perms.notifications='granted';
+  else if(Notification.permission==='denied') S.perms.notifications='denied';
+}
+</script>
+</body>
+</html>
